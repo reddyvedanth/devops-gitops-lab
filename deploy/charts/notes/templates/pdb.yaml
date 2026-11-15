@@ -1,0 +1,18 @@
+{{- if .Values.web.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: notes-web
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: notes
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: notes
+spec:
+  maxUnavailable: {{ .Values.web.pdb.maxUnavailable }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notes
+      app.kubernetes.io/component: web
+{{- end }}

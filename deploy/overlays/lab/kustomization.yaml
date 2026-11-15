@@ -1,0 +1,130 @@
+# Lab overlay. This is the file you edit after a new image exists.
+#
+# Deploy order is the Argo CD sync-wave on each resource below.
+# Argo CD finishes a wave and waits until it is healthy before it starts the next one.
+#
+#   -1  namespace
+#    0  database Secret
+#    1  database Service and Deployment
+#    2  web Service, Deployment, and PodDisruptionBudget
+#
+# The web pod also waits for Postgres in an init container, so a plain
+# kubectl apply still comes up in a safe order.
+#
+# Day to day, change only images.newTag. GitHub Actions pushes the image and
+# stops. It does not edit this file. That is the same handoff your EKS apps use.
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: notes
+
+resources:
+  - namespace.yaml
+
+helmGlobals:
+  chartHome: ../../charts
+
+helmCharts:
+  - name: notes
+    releaseName: notes
+    namespace: notes
+    valuesInline:
+      web:
+        service:
+          type: NodePort
+          nodePort: 30080
+
+# One-time: set newName to your Docker Hub repository.
+# After that, paste the new image tag into newTag and commit.
+images:
+  - name: notes-web
+    newName: docker.io/REPLACE_ME/notes-web
+    newTag: "0.1.0"
+
+replicas:
+  - name: notes-web
+    count: 3
+
+# Lab password only. A real EKS app would use External Secrets or SSM.
+secretGenerator:
+  - name: notes-db-auth
+    literals:
+      - POSTGRES_USER=notes
+      - POSTGRES_PASSWORD=notes-lab-pass
+      - POSTGRES_DB=notes
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+
+patches:
+  - target:
+      version: v1
+      kind: Namespace
+      name: notes
+    patch: |-
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: notes
+        annotations:
+          argocd.argoproj.io/sync-wave: "-1"
+  - target:
+      version: v1
+      kind: Service
+      name: notes-db
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: notes-db
+        annotations:
+          argocd.argoproj.io/sync-wave: "1"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: notes-db
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: notes-db
+        annotations:
+          argocd.argoproj.io/sync-wave: "1"
+  - target:
+      version: v1
+      kind: Service
+      name: notes-web
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: notes-web
+        annotations:
+          argocd.argoproj.io/sync-wave: "2"
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: notes-web
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: notes-web
+        annotations:
+          argocd.argoproj.io/sync-wave: "2"
+  - target:
+      group: policy
+      version: v1
+      kind: PodDisruptionBudget
+      name: notes-web
+    patch: |-
+      apiVersion: policy/v1
+      kind: PodDisruptionBudget
+      metadata:
+        name: notes-web
+        annotations:
+          argocd.argoproj.io/sync-wave: "2"

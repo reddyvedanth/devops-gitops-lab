@@ -1,0 +1,44 @@
+# Chart defaults. The lab overlay changes exposure, replica count, and the image tag.
+# The database password is not in this file. Kustomize generates the Secret.
+
+web:
+  replicaCount: 1
+  image:
+    # Logical name. deploy/overlays/lab/kustomization.yaml rewrites it to Docker Hub.
+    repository: notes-web
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    nodePort: 30080
+  db:
+    host: notes-db
+    port: "5432"
+    secretName: notes-db-auth
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+db:
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: 16-alpine
+  # emptyDir is wiped when the pod is replaced. That is the stateless database.
+  storage: emptyDir
+  sizeLimit: 256Mi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi

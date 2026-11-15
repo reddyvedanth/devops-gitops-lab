@@ -1,0 +1,6 @@
+apiVersion: v2
+name: notes
+description: Small notes app. Web tier plus a Postgres database that keeps data only in emptyDir.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
