@@ -40,7 +40,7 @@ helmCharts:
 images:
   - name: notes-web
     newName: docker.io/gitops/notes-web
-    newTag: "171d6a2083c54a12f8c1d777b531cb6b019b67a8"
+    newTag: "38bb38fb8ab060b723e8532d4dd62cee560b80cc"
 
 replicas:
   - name: notes-web
