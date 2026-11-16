@@ -16,7 +16,7 @@ PAGE = """
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Notes</title>
+  <title>Notes 2</title>
   <style>
     body { font-family: sans-serif; margin: 2rem auto; max-width: 36rem; line-height: 1.4; }
     form { display: flex; gap: .5rem; }
@@ -28,7 +28,7 @@ PAGE = """
   </style>
 </head>
 <body>
-  <h1>Notes</h1>
+  <h1>Notes 2</h1>
   <form method="post" action="/notes">
     <input name="body" maxlength="280" placeholder="Write a note" required>
     <button type="submit">Save</button>
@@ -152,6 +152,15 @@ def create_note():
     if request.is_json:
         return jsonify(id=row[0], body=row[1], created_at=row[2]), 201
     return redirect(url_for("home"), code=303)
+
+
+@app.get("/version")
+def version():
+    return jsonify(
+        release="practice-2",
+        version=os.getenv("APP_VERSION", "dev"),
+        pod=socket.gethostname(),
+    )
 
 
 @app.get("/health")
