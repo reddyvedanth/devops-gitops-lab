@@ -15,7 +15,7 @@ web:
   db:
     # Full DNS name. The wait container uses Alpine, which does not expand
     # a short service name such as notes-db.
-    host: notes-db.notes.svc.cluster.local
+    host: notes-db.notes.svc.cluster.local.
     port: "5432"
     secretName: notes-db-auth
   pdb:
