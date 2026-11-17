@@ -50,7 +50,9 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
-            runAsUser: 999
+            # postgres:16-alpine's postgres user is uid 70. uid 999 is the
+            # Debian image. libpq will not open a socket as an unknown uid.
+            runAsUser: 70
             capabilities:
               drop: ["ALL"]
       containers:
