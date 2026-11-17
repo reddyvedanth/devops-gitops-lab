@@ -39,7 +39,7 @@ helmCharts:
 # After that, paste the new image tag into newTag and commit.
 images:
   - name: notes-web
-    newName: docker.io/gitops/notes-web
+    newName: docker.io/vedanthreddy/notes-web
     newTag: "38bb38fb8ab060b723e8532d4dd62cee560b80cc"
 
 replicas:
