@@ -40,7 +40,7 @@ helmCharts:
 images:
   - name: notes-web
     newName: docker.io/vedanthreddy/notes-web
-    newTag: "38bb38fb8ab060b723e8532d4dd62cee560b80cc"
+    newTag: "cc874b153335176fa2c981eb7d8cf408890654fb"
 
 replicas:
   - name: notes-web
